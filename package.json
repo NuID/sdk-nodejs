@@ -1,7 +1,7 @@
 {
-  "name": "@nuid/api",
+  "name": "@nuid/sdk-nodejs",
   "version": "0.1.0",
-  "description": "Wrapper for easier integration with NuID APIs",
+  "description": "SDK for interacting with NuID APIs in Node.js",
   "files": [
     "LICENSE*"
   ],
@@ -14,13 +14,13 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "doc": "typedoc --includeVersion --readme README.md  --listInvalidSymbolLinks --watch",
+    "doc": "typedoc --includeVersion --readme README.md  --listInvalidSymbolLinks",
     "format": "prettier-standard --lint --format -- 'src/**/*.ts'",
     "watch": "npm-watch"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/nuid/js-api.git"
+    "url": "git+ssh://git@github.com/nuid/sdk-nodejs.git"
   },
   "keywords": [
     "nuid",
@@ -33,9 +33,9 @@
   "author": "NuID, Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nuid/js-api/issues"
+    "url": "https://github.com/nuid/sdk-nodejs/issues"
   },
-  "homepage": "https://github.com/nuid/js-api#readme",
+  "homepage": "https://github.com/nuid/sdk-nodejs#readme",
   "dependencies": {
     "node-fetch": "^2.6.1",
     "ramda": "^0.27.1"
