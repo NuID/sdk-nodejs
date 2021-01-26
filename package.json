@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "doc": "typedoc --includeVersion --readme README.md  --listInvalidSymbolLinks",
+    "doc": "typedoc --includeVersion --readme README.md  --listInvalidSymbolLinks src",
     "format": "prettier-standard --lint --format -- 'src/**/*.ts'",
     "watch": "npm-watch"
   },
