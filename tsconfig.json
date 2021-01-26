@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true,
+    "declaration": true,
+    "lib": ["es2018", "es2019", "es2017", "es7", "es6"],
     "noEmitOnError": false,
+    "noImplicitAny": true,
+    "outDir": "dist",
     "removeComments": false,
     "sourceMap": true,
-    "target": "es5",
-    "outDir": "dist"
+    "target": "es5"
   },
   "includes": ["src", "src/api"],
+  "exclude": ["node_modules", "dist"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "doc"

@@ -5,7 +5,8 @@
   "files": [
     "LICENSE*"
   ],
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "watch": {
     "build": "src/**/*.ts",
     "doc": "src/**/*.ts",
