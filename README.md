@@ -14,6 +14,10 @@ docs](http://libdocs.s3-website-us-east-1.amazonaws.com/sdk-nodejs/v0.1.0/) or
 checkout the [platform docs](https://portal.nuid.io/docs) for API docs, guides,
 video tutorials, and more.
 
+This package is written with typescript so you should be able to get valid type
+definitions in your editor when importing this package. Using typescript is not
+a requirement to use this package.
+
 ## Install
 
 With [npm](https://www.npmjs.com/package/@nuid/sdk-nodejs):

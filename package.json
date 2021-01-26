@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "SDK for interacting with NuID APIs in Node.js",
   "files": [
+    "/dist",
     "LICENSE*"
   ],
   "main": "dist/index.js",
