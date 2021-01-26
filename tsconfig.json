@@ -10,6 +10,6 @@
   "includes": ["src", "src/api"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
-    "out": "docs"
+    "out": "doc"
   }
 }
