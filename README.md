@@ -3,14 +3,14 @@
 # NuID SDK for Node.js
 
 [![](https://img.shields.io/npm/v/@nuid/sdk-nodejs?color=green&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/@nuid/sdk-nodejs)
-[![](https://img.shields.io/badge/docs-v0.2.1-blue?style=for-the-badge&logo=read-the-docs)](http://libdocs.s3-website-us-east-1.amazonaws.com/sdk-nodejs/v0.2.1/)
+[![](https://img.shields.io/badge/docs-v0.2.1-blue?style=for-the-badge&logo=read-the-docs)](http://libdocs.s3-website-us-east-1.amazonaws.com/sdk-nodejs/)
 [![](https://img.shields.io/badge/docs-platform-purple?style=for-the-badge&logo=read-the-docs)](https://portal.nuid.io/docs)
 
 This repo provides an npm package for interacting with NuID APIs within Node.js
 applications.
 
 Read the latest [package
-docs](http://libdocs.s3-website-us-east-1.amazonaws.com/sdk-nodejs/v0.2.1/) or
+docs](http://libdocs.s3-website-us-east-1.amazonaws.com/sdk-nodejs/) or
 checkout the [platform docs](https://portal.nuid.io/docs) for API docs, guides,
 video tutorials, and more.
 
