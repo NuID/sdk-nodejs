@@ -44,7 +44,7 @@ describe('api/auth', () => {
 
   it('test roundtrip', () => {
     const { auth } = sdk({ auth: {
-      apiKey: 'ACrED3gWyu7wBVFmXJoZB43aog1G07Kq86qsYI03',
+      apiKey: process.env.NUID_API_KEY,
       host: 'https://auth.stage-coach.io'
     }})
 
