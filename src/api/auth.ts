@@ -5,7 +5,6 @@
  */
 
 import * as http from '../http'
-import { Response } from 'node-fetch'
 
 /**
  * The encoded credential to be used as a unique identifier for a credential.
@@ -49,6 +48,13 @@ export interface CredentialCreateResponse {
 }
 
 /**
+ * Response object returned upon successful calls to [[credentialCreate]].
+ */
+export interface CredentialGetResponse {
+  'nuid/credential': Credential
+}
+
+/**
  * Response object returned upon successful calls to [[challengeGet]].
  */
 export interface ChallengeGetResponse {
@@ -56,10 +62,12 @@ export interface ChallengeGetResponse {
 }
 
 /**
- * Response object returned upon successful calls to [[challengeVerify]].
+ * Request object for calls to [[challengeVerify]].
+ * 
  */
-export interface ChallengeVerifyResponse {
-  verified: boolean
+export interface ChallengeVerifyRequest {
+  'nuid.credential.challenge/jwt': JWT,
+  'nuid.credential/proof': Proof
 }
 
 /**
@@ -67,19 +75,19 @@ export interface ChallengeVerifyResponse {
  */
 export type CredentialCreateFn = (
   verifiedCredential: VerifiedCredential
-) => Promise<CredentialCreateResponse>
+) => Promise<http.SDKResponse<CredentialCreateResponse>>
 
 /**
  * @see [[credentialGet]]
  */
-export type CredentialGetFn = (nuid: NuID) => Promise<Credential>
+export type CredentialGetFn = (nuid: NuID) => Promise<http.SDKResponse<Credential>>
 
 /**
  * @see [[challengeGet]]
  */
 export type ChallengeGetFn = (
   credential: Credential
-) => Promise<ChallengeGetResponse>
+) => Promise<http.SDKResponse<ChallengeGetResponse>>
 
 /**
  * @see [[challengeVerify]]
@@ -87,7 +95,7 @@ export type ChallengeGetFn = (
 export type ChallengeVerifyFn = (
   challengeJWT: JWT,
   proof: Proof
-) => Promise<ChallengeVerifyResponse>
+) => Promise<http.SDKResponse<Object>>
 
 /**
  * Public endpoints for the NuID Auth API
@@ -124,12 +132,11 @@ export const credentialCreate: CredentialCreateFn = verifiedCredential =>
 /**
  * Get a credential keyed by the `nu/id`.
  * @async
- *
  * @param nuid - The encoded `nu/id` returned from calls to [[credentialCreate]].
  * @return A Promise
  */
 export const credentialGet: CredentialGetFn = nuid =>
-  http.get('auth', `/credential/${nuid}`)
+  http.get<CredentialGetResponse>('auth', `/credential/${nuid}`)
 
 /**
  * Get a challenge for the user's credential keyed by the `nuid`.
@@ -137,14 +144,18 @@ export const credentialGet: CredentialGetFn = nuid =>
  * @see [[challengeVerify]] for verifying the challenge with a [[Proof]].
  */
 export const challengeGet: ChallengeGetFn = credential =>
-  http.post('auth', '/challenge', credential)
+  http.post<Credential, ChallengeGetResponse>('auth', '/challenge', credential)
 
+/**
+ * Verify a credential challenge with a proof generated from a challenge and the
+ * user's secret. Returns an empty body, so check `res.ok` for a verified
+ * challenge.
+ * @async
+ * @see [[challengeGet]] for generating the challenge from a user credential.
+ */
 export const challengeVerify: ChallengeVerifyFn = (challengeJWT, proof) =>
   http
-    .post('auth', '/challenge/verify', {
+    .post<ChallengeVerifyRequest, Object>('auth', '/challenge/verify', {
       'nuid.credential.challenge/jwt': challengeJWT,
       'nuid.credential/proof': proof
     })
-    .then((res: Response) =>
-      res.ok ? { verified: true } : { verified: false }
-    )
