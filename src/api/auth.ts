@@ -12,7 +12,8 @@ import * as http from '../http'
 export type NuID = string
 
 /**
- * Encoded object payload conforming to the JWT spec.
+ * Encoded object payload conforming to the [JWT
+ * spec](https://tools.ietf.org/html/rfc7519).
  */
 export type JWT = string
 
@@ -35,72 +36,118 @@ export interface Proof {} // TODO
 /**
  * Request object for calls to [[credentialCreate]].
  */
-export interface CredentialCreateRequest {
+export interface ReqCredentialCreate {
+  /**
+   * A verified credential is one that has been generated from the user's secret
+   * using `Zk.verifiableFromSecret(secret)`.
+   */
   'nuid.credential/verified': VerifiedCredential
 }
 
 /**
  * Response object returned upon successful calls to [[credentialCreate]].
  */
-export interface CredentialCreateResponse {
+export interface ResCredentialCreate {
+  /**
+   * The unique encoded value pointing to this user credential.
+   */
   'nu/id': NuID
+
+  /**
+   * The user [[Credential]].
+   */
   'nuid/credential': Credential
 }
 
 /**
  * Response object returned upon successful calls to [[credentialCreate]].
  */
-export interface CredentialGetResponse {
+export interface ResCredentialGet {
+  /**
+   * The fetched [[Credential]].
+   */
   'nuid/credential': Credential
 }
+/**
+ * Request object forcalls to [[challengeGet]].
+ */
+export interface ReqChallengeGet {
+  /**
+   * The [[Credential]] to generate a challenge for. 
+   */
+  'nuid/credential': Credential
+}
+
 
 /**
  * Response object returned upon successful calls to [[challengeGet]].
  */
-export interface ChallengeGetResponse {
+export interface ResChallengeGet {
+  /**
+   * The JWT contains the challenge claims for a given credential.
+   * Decode the claims using your preferred method, then use the claims
+   * and secret to generate a proof using
+   * `Zk.proofFromSecretAndChallenge(secret, challengeClaims)`. The proof
+   * can then be verified along with this challenge JWT.
+   */
   'nuid.credential.challenge/jwt': JWT
 }
 
 /**
  * Request object for calls to [[challengeVerify]].
- * 
  */
-export interface ChallengeVerifyRequest {
+export interface ReqChallengeVerify {
+  /**
+   * The JWT returned by a call to [[challengeGet]], contained in the
+   * [[ResChallengeGet]].
+   */
   'nuid.credential.challenge/jwt': JWT,
+
+  /**
+   * Use the challenge JWT from [[ResChallengeGet]] in conjunction with the
+   * user's secret to generate a valid proof for verification.
+   */
   'nuid.credential/proof': Proof
 }
 
 /**
- * @see [[credentialCreate]]
+ * Challenge verification has an empty response body. Check `res.ok` to validate
+ * the challenge verification.
+ */
+export interface ResChallengeVerify {
+}
+
+/**
+ * @hidden
  */
 export type CredentialCreateFn = (
   verifiedCredential: VerifiedCredential
-) => Promise<http.SDKResponse<CredentialCreateResponse>>
+) => Promise<http.SDKResponse<ResCredentialCreate>>
 
 /**
- * @see [[credentialGet]]
+ * @hidden
  */
-export type CredentialGetFn = (nuid: NuID) => Promise<http.SDKResponse<Credential>>
+export type CredentialGetFn = (nuid: NuID) => Promise<http.SDKResponse<ResCredentialGet>>
 
 /**
- * @see [[challengeGet]]
+ * @hidden
  */
 export type ChallengeGetFn = (
   credential: Credential
-) => Promise<http.SDKResponse<ChallengeGetResponse>>
+) => Promise<http.SDKResponse<ResChallengeGet>>
 
 /**
- * @see [[challengeVerify]]
+ * Exported for test mocks. @see
  */
 export type ChallengeVerifyFn = (
   challengeJWT: JWT,
   proof: Proof
-) => Promise<http.SDKResponse<Object>>
+) => Promise<http.SDKResponse<ResChallengeVerify>>
 
 /**
- * Public endpoints for the NuID Auth API
+ * @hidden
  */
-export interface IAuthAPI {
+export interface AuthAPI {
   credentialCreate: CredentialCreateFn
   credentialGet: CredentialGetFn
   challengeGet: ChallengeGetFn
@@ -114,14 +161,16 @@ export interface IAuthAPI {
  *   `Zk.verifiableFromSecret(secret)` fn for generating verified credentials.
  *
  * @param verifiedCredential - The verified credential created by calling `Zk.verifiableFromSecret(password)`
- * @return The response object contains an encoded `nu/id` (for storing with
- *   your user data) and the associated `Credential`. The Promise may also fail
- *   and contain the failed fetch
- *   [`Response`](https://www.npmjs.com/package/node-fetch#class-response)
- *   object.
+ * @returns - The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   with a [[parsedBody]] attribute of type [[ResCredentialCreate]].
+ * @throws The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   will be thrown `if (!res.ok)`. The [[parsedBody]] attribute may be set with
+ *   an object of type [[ResCredentialCreate]].
  */
 export const credentialCreate: CredentialCreateFn = verifiedCredential =>
-  http.post<CredentialCreateRequest, CredentialCreateResponse>(
+  http.post<ReqCredentialCreate, ResCredentialCreate>(
     'auth',
     '/credential',
     {
@@ -133,29 +182,52 @@ export const credentialCreate: CredentialCreateFn = verifiedCredential =>
  * Get a credential keyed by the `nu/id`.
  * @async
  * @param nuid - The encoded `nu/id` returned from calls to [[credentialCreate]].
- * @return A Promise
+ * @returns - The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   with a [[parsedBody]] attribute of type [[ResCredentialGet]].
+ * @throws The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   will be thrown `if (!res.ok)`. The [[parsedBody]] attribute may be set with
+ *   an object of type [[ResCredentialGet]].
  */
 export const credentialGet: CredentialGetFn = nuid =>
-  http.get<CredentialGetResponse>('auth', `/credential/${nuid}`)
+  http.get<ResCredentialGet>('auth', `/credential/${nuid}`)
 
 /**
  * Get a challenge for the user's credential keyed by the `nuid`.
  * @async
  * @see [[challengeVerify]] for verifying the challenge with a [[Proof]].
+ * @returns - The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   with a [[parsedBody]] attribute of type [[ResChallengeGet]].
+ * @throws The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   will be thrown `if (!res.ok)`. The [[parsedBody]] attribute may be set with
+ *   an object of type [[ResChallengeGet]].
  */
 export const challengeGet: ChallengeGetFn = credential =>
-  http.post<Credential, ChallengeGetResponse>('auth', '/challenge', credential)
+  http.post<ReqChallengeGet, ResChallengeGet>('auth', '/challenge', {
+    'nuid/credential': credential
+  })
 
 /**
  * Verify a credential challenge with a proof generated from a challenge and the
- * user's secret. Returns an empty body, so check `res.ok` for a verified
- * challenge.
+ * user's secret. Returns an empty body, so check `res.ok` to determine
+ * if the challenge has been successfully verified.
  * @async
- * @see [[challengeGet]] for generating the challenge from a user credential.
+ * @see [[challengeGet]] for generating the `challengeJWT` from a user
+ *   credential.
+ * @returns - The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) with an
+ *   empty [[parsedBody]] response object. Use `res.ok` instead to
+ *   validate successful verification.
+ * @throws The [`fetch`
+ *   Response](https://www.npmjs.com/package/node-fetch#class-response) object
+ *   will be thrown `if (!res.ok)`.
  */
 export const challengeVerify: ChallengeVerifyFn = (challengeJWT, proof) =>
   http
-    .post<ChallengeVerifyRequest, Object>('auth', '/challenge/verify', {
+    .post<ReqChallengeVerify, ResChallengeVerify>('auth', '/challenge/verify', {
       'nuid.credential.challenge/jwt': challengeJWT,
       'nuid.credential/proof': proof
     })
