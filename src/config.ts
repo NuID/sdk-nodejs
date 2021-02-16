@@ -3,6 +3,7 @@
  * @module config
  */
 
+import * as assert from 'assert'
 import * as R from 'ramda'
 
 /**
@@ -16,7 +17,7 @@ export type APIName = 'auth'
  */
 export interface AuthAPIConfig {
   apiKey: string
-  rootUrl: string
+  host?: string
 }
 
 /**
@@ -35,7 +36,7 @@ export type APIConfig = AuthAPIConfig // | FooAPIConfig | BarAPICOnfig
 const defaultConfig = {
   auth: {
     apiKey: '',
-    rootUrl: 'https://auth.nuid.io'
+    host: 'https://auth.nuid.io'
   }
 }
 
@@ -60,6 +61,15 @@ const deepPathsReducer: (acc: KeyPath[], [k, v]: KVPair) => KeyPath[] = (
 const deepPaths: (v: string | Object) => KeyPath[] = v =>
   R.pipe(R.toPairs, R.reduce(deepPathsReducer, []))(v)
 
+const isPresent = R.pathSatisfies(R.compose(R.complement(R.isEmpty), R.complement(R.isNil)))
+
+const verifyPaths: (paths: string[][], config: Config) => Config = (paths, config) => {
+  R.forEach(path => {
+    assert(isPresent(path, config), `config.${R.join('.', path)} must be present`)
+  }, paths)
+  return config
+}
+
 /**
  * Setter for the config object. Prevents setting arbitrary keys.
  */
@@ -75,7 +85,10 @@ const setConfig: (cfg: Config) => Config = cfg => {
     config,
     deepPaths(config)
   )
-  return config
+  return verifyPaths([
+    ['auth', 'apiKey'],
+    ['auth', 'host']
+  ], config)
 }
 
 export default setConfig
